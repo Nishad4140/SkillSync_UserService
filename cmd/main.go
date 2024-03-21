@@ -24,7 +24,7 @@ func main() {
 	services := initializer.Initializer(db)
 	server := grpc.NewServer()
 	pb.RegisterUserServiceServer(server, services)
-	lis, err := net.Listen("tcp", "4001")
+	lis, err := net.Listen("tcp", ":4001")
 	if err != nil {
 		log.Fatalf("failed to run on the port 4001 : %v", err)
 	}
