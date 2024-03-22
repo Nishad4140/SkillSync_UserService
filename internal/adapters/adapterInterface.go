@@ -10,5 +10,6 @@ type AdapterInterface interface {
 	FreelancerSignup(entities.Freelancer) (entities.Freelancer, error)
 	GetFreelancerByEmail(email string) (entities.Freelancer, error)
 	GetFreelancerByPhone(phone string) (entities.Freelancer, error)
+	GetAdminByEmail(email string) (entities.Admin, error)
 	GetCategoryById(categoryId int32) (entities.Category, error)
 }

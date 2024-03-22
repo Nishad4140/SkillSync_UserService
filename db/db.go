@@ -19,6 +19,7 @@ func InitDB(connectTo string) (*gorm.DB, error) {
 		&entities.ClientProfile{},
 		&entities.Freelancer{},
 		&entities.Category{},
+		&entities.Admin{},
 	)
 	return db, nil
 }

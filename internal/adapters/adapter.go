@@ -91,3 +91,12 @@ func (user *UserAdapter) GetCategoryById(categoryId int32) (entities.Category, e
 	}
 	return res, nil
 }
+
+func (user *UserAdapter) GetAdminByEmail(email string) (entities.Admin, error) {
+	var res entities.Admin
+	query := "SELECT * FROM admins WHERE email = ?"
+	if err := user.DB.Raw(query, email).Scan(&res).Error; err != nil {
+		return entities.Admin{}, err
+	}
+	return res, nil
+}

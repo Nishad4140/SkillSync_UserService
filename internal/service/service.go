@@ -25,7 +25,7 @@ func NewUserService(adapters adapters.AdapterInterface, usecase usecase.UsecaseI
 	}
 }
 
-func (user *UserService) ClientSignup(ctx context.Context, req *pb.UserSignUpRequest) (*pb.UserSignUpResponse, error) {
+func (user *UserService) ClientSignup(ctx context.Context, req *pb.ClientSignUpRequest) (*pb.ClientSignUpResponse, error) {
 	if req.Email == "" {
 		return nil, fmt.Errorf("email can't be empty")
 	}
@@ -66,7 +66,7 @@ func (user *UserService) ClientSignup(ctx context.Context, req *pb.UserSignUpReq
 	if err != nil {
 		return nil, err
 	}
-	return &pb.UserSignUpResponse{
+	return &pb.ClientSignUpResponse{
 		Id:    res.ID.String(),
 		Name:  res.Name,
 		Email: res.Email,
@@ -119,4 +119,71 @@ func (user *UserService) FreelancerSignup(ctx context.Context, req *pb.Freelance
 		Phone:      res.Phone,
 		CategoryId: res.CategoryId,
 	}, err
+}
+
+func (user *UserService) ClientLogin(ctx context.Context, req *pb.LoginRequest) (*pb.ClientSignUpResponse, error) {
+	if req.Emial == "" {
+		return &pb.ClientSignUpResponse{}, fmt.Errorf("please enter the email")
+	}
+	clientData, err := user.adapters.GetClientByEmail(req.Emial)
+	if err != nil {
+		return &pb.ClientSignUpResponse{}, err
+	}
+	if clientData.Email == "" {
+		return &pb.ClientSignUpResponse{}, fmt.Errorf("invalid credentials")
+	}
+	if !helper.CompareHashedPassword(clientData.Password, req.Password) {
+		return &pb.ClientSignUpResponse{}, fmt.Errorf("invalid password")
+	}
+	return &pb.ClientSignUpResponse{
+		Id:    clientData.ID.String(),
+		Name:  clientData.Name,
+		Email: clientData.Email,
+		Phone: clientData.Phone,
+	}, nil
+}
+
+func (user *UserService) FreelancerLogin(ctx context.Context, req *pb.LoginRequest) (*pb.FreelancerSignUpResponse, error) {
+	if req.Emial == "" {
+		return &pb.FreelancerSignUpResponse{}, fmt.Errorf("enter a valid email")
+	}
+	freelancerData, err := user.adapters.GetFreelancerByEmail(req.Emial)
+	if err != nil {
+		return &pb.FreelancerSignUpResponse{}, err
+	}
+	if freelancerData.Email == "" {
+		return &pb.FreelancerSignUpResponse{}, fmt.Errorf("invalid credentials")
+	}
+	if !helper.CompareHashedPassword(freelancerData.Password, req.Password) {
+		return &pb.FreelancerSignUpResponse{}, fmt.Errorf("invalid password")
+	}
+	return &pb.FreelancerSignUpResponse{
+		Id:         freelancerData.ID.String(),
+		Name:       freelancerData.Name,
+		Email:      freelancerData.Email,
+		Phone:      freelancerData.Phone,
+		CategoryId: freelancerData.CategoryId,
+	}, nil
+}
+
+func (user *UserService) AdminLogin(ctx context.Context, req *pb.LoginRequest) (*pb.ClientSignUpResponse, error) {
+	if req.Emial == "" {
+		return &pb.ClientSignUpResponse{}, fmt.Errorf("enter a valid mail")
+	}
+	adminData, err := user.adapters.GetAdminByEmail(req.Emial)
+	if err != nil {
+		return &pb.ClientSignUpResponse{}, err
+	}
+	if adminData.Email == "" {
+		return &pb.ClientSignUpResponse{}, fmt.Errorf("invalid credentials")
+	}
+	if !helper.CompareHashedPassword(adminData.Password, req.Password) {
+		return &pb.ClientSignUpResponse{}, fmt.Errorf("invalid password")
+	}
+	return &pb.ClientSignUpResponse{
+		Id:    adminData.ID.String(),
+		Name:  adminData.Name,
+		Email: adminData.Email,
+		Phone: adminData.Phone,
+	}, nil
 }

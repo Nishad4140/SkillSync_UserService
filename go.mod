@@ -3,7 +3,7 @@ module github.com/Nishad4140/SkillSync_UserService
 go 1.21.0
 
 require (
-	github.com/Nishad4140/SkillSync_ProtoFiles v0.0.0-20240321074359-da80a1c1786a
+	github.com/Nishad4140/SkillSync_ProtoFiles v0.0.0-20240321121532-4fe82b752d33
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	golang.org/x/crypto v0.18.0

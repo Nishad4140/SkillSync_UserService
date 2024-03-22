@@ -27,6 +27,14 @@ type Freelancer struct {
 	Password   string
 }
 
+type Admin struct {
+	ID       uuid.UUID `gorm:"primaryKey;unique;not null"`
+	Name     string
+	Email    string
+	Phone    string
+	Password string
+}
+
 type Category struct {
 	ID   int
 	Name string
