@@ -46,7 +46,7 @@ func (user *UserAdapter) GetClientByPhone(phone string) (entities.Client, error)
 	return res, nil
 }
 
-func (user *UserAdapter) CreateProfile(userID string) error {
+func (user *UserAdapter) CreateClientProfile(userID string) error {
 	profileID := uuid.New()
 	query := "INSERT INTO client_profile (id, user_id) ($1, $2)"
 	if err := user.DB.Raw(query, profileID, userID).Error; err != nil {
@@ -97,6 +97,40 @@ func (user *UserAdapter) GetAdminByEmail(email string) (entities.Admin, error) {
 	query := "SELECT * FROM admins WHERE email = ?"
 	if err := user.DB.Raw(query, email).Scan(&res).Error; err != nil {
 		return entities.Admin{}, err
+	}
+	return res, nil
+}
+
+func (user *UserAdapter) AdminAddCategory(category entities.Category) error {
+	query := "INSERT INTO categories (name) VALUES ($1)"
+	if err := user.DB.Exec(query, category.Name).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) AdminUpdateCategory(category entities.Category) error {
+	query := "UPDATE categories SET name=$1 WHERE id=$2"
+	if err := user.DB.Exec(query, category.Name, category.ID).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) GetAllCategories() ([]entities.Category, error) {
+	var res []entities.Category
+	query := "SELECT * FROM categories"
+	if err := user.DB.Raw(query).Scan(&res).Error; err != nil {
+		return []entities.Category{}, err
+	}
+	return res, nil
+}
+
+func (user *UserAdapter) GetCategoryByName(name string) (entities.Category, error) {
+	var res entities.Category
+	query := "SELECT * FROM categories WHERE name = ?"
+	if err := user.DB.Raw(query, name).Scan(&res).Error; err != nil {
+		return entities.Category{}, err
 	}
 	return res, nil
 }

@@ -75,7 +75,7 @@ func (user *UserService) ClientSignup(ctx context.Context, req *pb.ClientSignUpR
 }
 
 func (user *UserService) CreateProfile(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
-	if err := user.adapters.CreateProfile(req.Id); err != nil {
+	if err := user.adapters.CreateClientProfile(req.Id); err != nil {
 		return &emptypb.Empty{}, err
 	}
 	return &emptypb.Empty{}, nil
@@ -186,4 +186,58 @@ func (user *UserService) AdminLogin(ctx context.Context, req *pb.LoginRequest) (
 		Email: adminData.Email,
 		Phone: adminData.Phone,
 	}, nil
+}
+
+func (user *UserService) AddCategory(ctx context.Context, req *pb.AddCategoryRequest) (*emptypb.Empty, error) {
+	reqEntity := entities.Category{
+		Name: req.Category,
+	}
+	nameCheck, err := user.adapters.GetCategoryByName(req.Category)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	if nameCheck.Name != "" {
+		return &emptypb.Empty{}, fmt.Errorf("category already exists")
+	}
+	err = user.adapters.AdminAddCategory(reqEntity)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) UpdateCategory(ctx context.Context, req *pb.UpdateCategoryRequest) (*emptypb.Empty, error) {
+	reqEntity := entities.Category{
+		ID:   int(req.Id),
+		Name: req.Category,
+	}
+	nameCheck, err := user.adapters.GetCategoryByName(req.Category)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	if nameCheck.Name != "" {
+		return &emptypb.Empty{}, fmt.Errorf("category already exists")
+	}
+	err = user.adapters.AdminUpdateCategory(reqEntity)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) GetAllCategory(req *emptypb.Empty, srv pb.UserService_GetAllCategoryServer) error {
+	categories, err := user.adapters.GetAllCategories()
+	if err != nil {
+		return err
+	}
+	for _, category := range categories {
+		res := &pb.UpdateCategoryRequest{
+			Id:       int32(category.ID),
+			Category: category.Name,
+		}
+		if err := srv.Send(res); err != nil {
+			return err
+		}
+	}
+	return nil
 }
