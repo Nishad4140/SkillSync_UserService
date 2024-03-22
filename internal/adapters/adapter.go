@@ -134,3 +134,38 @@ func (user *UserAdapter) GetCategoryByName(name string) (entities.Category, erro
 	}
 	return res, nil
 }
+
+func (user *UserAdapter) ClientAddAddress(req entities.Address, userId string) error {
+	id := uuid.New()
+	insertQuery := "INSERT INTO addresses (id, country, state, district, city) VALUES ($1, $2, $3, $4, $5)"
+	if err := user.DB.Exec(insertQuery, id, req.Country, req.State, req.District, req.City).Error; err != nil {
+		return err
+	}
+	updateQuery := "UPDATE client_profiles SET address_id = $1 WHERE client_id = $2"
+	if err := user.DB.Exec(updateQuery, id, userId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) GetAddressByUserId(userId string) (entities.Address, error) {
+	var addressId string
+	query := "SELECT address_id FROM client_profiles WHERE client_id = ?"
+	if err := user.DB.Raw(query, userId).Scan(&addressId).Error; err != nil {
+		return entities.Address{}, err
+	}
+	var res entities.Address
+	selectQuery := "SELECT * FROM addresses WHERE id = ?"
+	if err := user.DB.Raw(selectQuery, addressId).Scan(&res).Error; err != nil {
+		return entities.Address{}, err
+	}
+	return res, nil
+}
+
+func (user *UserAdapter) ClientUpdateAddress(req entities.Address) error {
+	query := "UPDATE addresses SET country = $1, state = $2, district = $3, city = $4 WHERE id = $5"
+	if err := user.DB.Exec(query, req.Country, req.State, req.District, req.City, req.Id).Error; err != nil {
+		return err
+	}
+	return nil
+}

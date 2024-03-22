@@ -9,6 +9,7 @@ import (
 	"github.com/Nishad4140/SkillSync_UserService/internal/adapters"
 	"github.com/Nishad4140/SkillSync_UserService/internal/helper"
 	"github.com/Nishad4140/SkillSync_UserService/internal/usecase"
+	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -240,4 +241,57 @@ func (user *UserService) GetAllCategory(req *emptypb.Empty, srv pb.UserService_G
 		}
 	}
 	return nil
+}
+
+func (user *UserService) ClientAddAddress(ctx context.Context, req *pb.AddAddressRequest) (*emptypb.Empty, error) {
+	address, err := user.adapters.GetAddressByUserId(req.UserId)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	if address.Country != "" {
+		return &emptypb.Empty{}, fmt.Errorf("you have added a address already, please edit on that")
+	}
+	reqEntity := entities.Address{
+		Country:  req.Country,
+		State:    req.State,
+		District: req.District,
+		City:     req.City,
+	}
+	if err := user.adapters.ClientAddAddress(reqEntity, req.UserId); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) ClientUpdateAddress(ctx context.Context, req *pb.AddressResponse) (*emptypb.Empty, error) {
+	addressId, err := uuid.Parse(req.Id)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	reqEntity := entities.Address{
+		Id:       addressId,
+		Country:  req.Country,
+		State:    req.State,
+		District: req.District,
+		City:     req.City,
+	}
+	if err := user.adapters.ClientUpdateAddress(reqEntity); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) ClientGetAddress(ctx context.Context, req *pb.GetUserById) (*pb.AddressResponse, error) {
+	address, err := user.adapters.GetAddressByUserId(req.Id)
+	if err != nil {
+		return &pb.AddressResponse{}, err
+	}
+	res := &pb.AddressResponse{
+		Id:       address.Id.String(),
+		Country:  address.Country,
+		State:    address.State,
+		District: address.District,
+		City:     address.City,
+	}
+	return res, nil
 }

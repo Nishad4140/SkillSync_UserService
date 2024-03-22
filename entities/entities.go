@@ -11,10 +11,12 @@ type Client struct {
 }
 
 type ClientProfile struct {
-	ID       uuid.UUID `gorm:"primaryKey;unique;not null"`
-	ClientID uuid.UUID
-	Client   Client `gorm:"foreignKey:ClientID"`
-	Image    string
+	ID        uuid.UUID `gorm:"primaryKey;unique;not null"`
+	ClientID  uuid.UUID
+	Client    Client `gorm:"foreignKey:ClientID"`
+	AddressId uuid.UUID
+	Address   Address `gorm:"foreignKey:AddressId"`
+	Image     string
 }
 
 type Freelancer struct {
@@ -38,4 +40,12 @@ type Admin struct {
 type Category struct {
 	ID   int
 	Name string
+}
+
+type Address struct {
+	Id       uuid.UUID `gorm:"primaryKey;unique; not null"`
+	Country  string
+	State    string
+	District string
+	City     string
 }
