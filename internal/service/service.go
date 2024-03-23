@@ -122,7 +122,19 @@ func (user *UserService) FreelancerSignup(ctx context.Context, req *pb.Freelance
 	}, err
 }
 
-func FreelancerCreateProfile()
+func (user *UserService) FreelancerCreateProfile(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
+	freelancerId, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, err
+	}
+	reqEntity := entities.FreelancerProfile{
+		FreelancerId: freelancerId,
+	}
+	if err := user.adapters.CreateFreelancerProfile(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
 
 func (user *UserService) ClientLogin(ctx context.Context, req *pb.LoginRequest) (*pb.ClientSignUpResponse, error) {
 	if req.Emial == "" {
@@ -243,6 +255,18 @@ func (user *UserService) GetAllCategory(req *emptypb.Empty, srv pb.UserService_G
 		}
 	}
 	return nil
+}
+
+func (user *UserService) GetCategorybyId(ctx context.Context, req *pb.GetCategoryByIdRequest) (*pb.UpdateCategoryRequest, error) {
+	category, err := user.adapters.GetCategoryById(req.Id)
+	if err != nil {
+		return nil, err
+	}
+	res := &pb.UpdateCategoryRequest{
+		Id:       int32(category.ID),
+		Category: category.Name,
+	}
+	return res, nil
 }
 
 func (user *UserService) AdminAddSkill(ctx context.Context, req *pb.AddSkillRequest) (*emptypb.Empty, error) {

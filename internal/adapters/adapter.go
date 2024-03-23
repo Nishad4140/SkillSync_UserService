@@ -49,7 +49,7 @@ func (user *UserAdapter) GetClientByPhone(phone string) (entities.Client, error)
 
 func (user *UserAdapter) CreateClientProfile(userID string) error {
 	profileID := uuid.New()
-	query := "INSERT INTO client_profile (id, user_id) ($1, $2)"
+	query := "INSERT INTO client_profiles (id, user_id) ($1, $2)"
 	if err := user.DB.Raw(query, profileID, userID).Error; err != nil {
 		return err
 	}
@@ -64,6 +64,15 @@ func (user *UserAdapter) FreelancerSignup(freelancerData entities.Freelancer) (e
 		return entities.Freelancer{}, fmt.Errorf("error in inserting values to the freelancer table")
 	}
 	return res, nil
+}
+
+func (user *UserAdapter) CreateFreelancerProfile(req entities.FreelancerProfile) error {
+	id := uuid.New()
+	query := "INSERT INTO freelancer_profiles (id, freelancer_id) VALUES ($1, $2)"
+	if err := user.DB.Exec(query, id, req.FreelancerId).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (user *UserAdapter) GetFreelancerByEmail(email string) (entities.Freelancer, error) {

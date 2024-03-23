@@ -19,6 +19,7 @@ type AdapterInterface interface {
 	FreelancerSignup(entities.Freelancer) (entities.Freelancer, error)
 	GetFreelancerByEmail(email string) (entities.Freelancer, error)
 	GetFreelancerByPhone(phone string) (entities.Freelancer, error)
+	CreateFreelancerProfile(req entities.FreelancerProfile) error
 
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)
