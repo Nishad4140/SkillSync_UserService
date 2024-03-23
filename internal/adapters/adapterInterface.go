@@ -31,4 +31,8 @@ type AdapterInterface interface {
 	AdminUpdateSkill(skill entities.Skill) error
 	AdminGetAllSkills() ([]helperstruct.SkillHelper, error)
 	GetSkillByName(skill string) (entities.Skill, error)
+	ClientBlock(clientId string) error
+	ClientUnBlock(clientId string) error
+	FreelancerBlock(freelancerId string) error
+	FreelancerUnblock(freelancerId string) error
 }

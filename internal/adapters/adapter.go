@@ -204,3 +204,35 @@ func (user *UserAdapter) ClientUpdateAddress(req entities.Address) error {
 	}
 	return nil
 }
+
+func (user *UserAdapter) ClientBlock(clientId string) error {
+	query := "UPDATE clients SET is_blocked = true WHERE id = ?"
+	if err := user.DB.Exec(query, clientId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) ClientUnBlock(clientId string) error {
+	query := "UPDATE clients SET is_blocked = false WHERE id = ?"
+	if err := user.DB.Exec(query, clientId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) FreelancerBlock(freelancerId string) error {
+	query := "UPDATE freelancers SET is_blocked = true WHERE id = ?"
+	if err := user.DB.Exec(query, freelancerId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) FreelancerUnblock(freelancerId string) error {
+	query := "UPDATE freelancers SET is_blocked = false WHERE id = ?"
+	if err := user.DB.Exec(query, freelancerId).Error; err != nil {
+		return err
+	}
+	return nil
+}

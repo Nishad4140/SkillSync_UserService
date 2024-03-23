@@ -122,6 +122,8 @@ func (user *UserService) FreelancerSignup(ctx context.Context, req *pb.Freelance
 	}, err
 }
 
+func FreelancerCreateProfile()
+
 func (user *UserService) ClientLogin(ctx context.Context, req *pb.LoginRequest) (*pb.ClientSignUpResponse, error) {
 	if req.Emial == "" {
 		return &pb.ClientSignUpResponse{}, fmt.Errorf("please enter the email")
@@ -352,4 +354,32 @@ func (user *UserService) ClientGetAddress(ctx context.Context, req *pb.GetUserBy
 		City:     address.City,
 	}
 	return res, nil
+}
+
+func (user *UserService) BlockClient(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
+	if err := user.adapters.ClientBlock(req.Id); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) UnBlockClient(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
+	if err := user.adapters.ClientUnBlock(req.Id); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) BlockFreelancer(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
+	if err := user.adapters.FreelancerBlock(req.Id); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) UnBlockFreelancer(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
+	if err := user.adapters.FreelancerUnblock(req.Id); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
 }

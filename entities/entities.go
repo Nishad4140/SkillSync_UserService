@@ -3,11 +3,12 @@ package entities
 import "github.com/google/uuid"
 
 type Client struct {
-	ID       uuid.UUID `gorm:"primaryKey;unique;not null"`
-	Name     string
-	Email    string
-	Phone    string
-	Password string
+	ID        uuid.UUID `gorm:"primaryKey;unique;not null"`
+	Name      string
+	Email     string
+	Phone     string
+	Password  string
+	IsBlocked bool
 }
 
 type ClientProfile struct {
@@ -19,6 +20,17 @@ type ClientProfile struct {
 	Image     string
 }
 
+type Freelancer struct {
+	ID         uuid.UUID `gorm:"primaryKey;unique;not null"`
+	Name       string
+	Email      string
+	Phone      string
+	CategoryId int32
+	Category   Category `gorm:"foreignKey:CategoryId"`
+	IsBlocked  bool
+	Password   string
+}
+
 type FreelancerProfile struct {
 	ID                       uuid.UUID `gorm:"primaryKey;unique;not null"`
 	FreelancerId             uuid.UUID
@@ -27,16 +39,6 @@ type FreelancerProfile struct {
 	Address                  Address `gorm:"foreignKey:AddressId"`
 	ExperienceInCurrentField string
 	Image                    string
-}
-
-type Freelancer struct {
-	ID         uuid.UUID `gorm:"primaryKey;unique;not null"`
-	Name       string
-	Email      string
-	Phone      string
-	CategoryId int32
-	Category   Category `gorm:"foreignKey:CategoryId"`
-	Password   string
 }
 
 type Admin struct {
