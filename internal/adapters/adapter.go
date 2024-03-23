@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Nishad4140/SkillSync_UserService/entities"
+	helperstruct "github.com/Nishad4140/SkillSync_UserService/entities/helperStruct"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -122,6 +123,40 @@ func (user *UserAdapter) GetAllCategories() ([]entities.Category, error) {
 	query := "SELECT * FROM categories"
 	if err := user.DB.Raw(query).Scan(&res).Error; err != nil {
 		return []entities.Category{}, err
+	}
+	return res, nil
+}
+
+func (user *UserAdapter) AdminAddSkill(skill entities.Skill) error {
+	query := "INSERT INTO skills (category_id, name) VALUES ($1, $2)"
+	if err := user.DB.Exec(query, skill.CategoryId, skill.Name).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) GetSkillByName(skill string) (entities.Skill, error) {
+	var res entities.Skill
+	query := "SELECT * FROM skills WHERE name = ?"
+	if err := user.DB.Raw(query, skill).Scan(&res).Error; err != nil {
+		return entities.Skill{}, err
+	}
+	return res, nil
+}
+
+func (user *UserAdapter) AdminUpdateSkill(skill entities.Skill) error {
+	query := "UPDATE skills SET name = $1, category_id = $2 WHERE id = $3"
+	if err := user.DB.Exec(query, skill.Name, skill.CategoryId, skill.ID).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) AdminGetAllSkills() ([]helperstruct.SkillHelper, error) {
+	var res []helperstruct.SkillHelper
+	query := "SELECT s.id AS skill_id, s.name AS skill_name, c.id AS category_id, c.name AS category_name FROM skills s JOIN categories c ON c.id = s.category_id"
+	if err := user.DB.Raw(query).Scan(&res).Error; err != nil {
+		return []helperstruct.SkillHelper{}, err
 	}
 	return res, nil
 }

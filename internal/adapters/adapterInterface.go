@@ -1,6 +1,9 @@
 package adapters
 
-import "github.com/Nishad4140/SkillSync_UserService/entities"
+import (
+	"github.com/Nishad4140/SkillSync_UserService/entities"
+	helperstruct "github.com/Nishad4140/SkillSync_UserService/entities/helperStruct"
+)
 
 type AdapterInterface interface {
 	// Client
@@ -20,8 +23,12 @@ type AdapterInterface interface {
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)
 	GetCategoryById(categoryId int32) (entities.Category, error)
-	AdminAddCategory(entities.Category) error
+	AdminAddCategory(category entities.Category) error
 	AdminUpdateCategory(category entities.Category) error
 	GetAllCategories() ([]entities.Category, error)
 	GetCategoryByName(name string) (entities.Category, error)
+	AdminAddSkill(skill entities.Skill) error
+	AdminUpdateSkill(skill entities.Skill) error
+	AdminGetAllSkills() ([]helperstruct.SkillHelper, error)
+	GetSkillByName(skill string) (entities.Skill, error)
 }

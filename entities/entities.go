@@ -19,6 +19,16 @@ type ClientProfile struct {
 	Image     string
 }
 
+type FreelancerProfile struct {
+	ID                       uuid.UUID `gorm:"primaryKey;unique;not null"`
+	FreelancerId             uuid.UUID
+	Freelancer               Freelancer `gorm:"foreignKey:ClientID"`
+	AddressId                uuid.UUID
+	Address                  Address `gorm:"foreignKey:AddressId"`
+	ExperienceInCurrentField string
+	Image                    string
+}
+
 type Freelancer struct {
 	ID         uuid.UUID `gorm:"primaryKey;unique;not null"`
 	Name       string
@@ -38,8 +48,15 @@ type Admin struct {
 }
 
 type Category struct {
-	ID   int
+	ID   int `gorm:"primaryKey; unique; not null"`
 	Name string
+}
+
+type Skill struct {
+	ID         int `gorm:"primaryKey; unique; not null"`
+	CategoryId int
+	Category   Category `gorm:"foreignKey:CategoryId"`
+	Name       string
 }
 
 type Address struct {

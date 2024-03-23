@@ -75,7 +75,7 @@ func (user *UserService) ClientSignup(ctx context.Context, req *pb.ClientSignUpR
 	}, nil
 }
 
-func (user *UserService) CreateProfile(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
+func (user *UserService) ClientCreateProfile(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
 	if err := user.adapters.CreateClientProfile(req.Id); err != nil {
 		return &emptypb.Empty{}, err
 	}
@@ -237,6 +237,64 @@ func (user *UserService) GetAllCategory(req *emptypb.Empty, srv pb.UserService_G
 			Category: category.Name,
 		}
 		if err := srv.Send(res); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (user *UserService) AdminAddSkill(ctx context.Context, req *pb.AddSkillRequest) (*emptypb.Empty, error) {
+	nameCheck, err := user.adapters.GetSkillByName(req.Skill)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	if nameCheck.Name != "" {
+		return &emptypb.Empty{}, fmt.Errorf("this skill is already added")
+	}
+	reqEntity := entities.Skill{
+		CategoryId: int(req.CategoryId),
+		Name:       req.Skill,
+	}
+	if err := user.adapters.AdminAddSkill(reqEntity); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) AdminUpdateSkill(ctx context.Context, req *pb.SkillResponse) (*emptypb.Empty, error) {
+	nameCheck, err := user.adapters.GetSkillByName(req.Skill)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	if nameCheck.Name != "" {
+		return &emptypb.Empty{}, fmt.Errorf("this skill is already added")
+	}
+	reqEntity := entities.Skill{
+		ID:         int(req.Id),
+		CategoryId: int(req.CategoryId),
+		Name:       req.Skill,
+	}
+	if err := user.adapters.AdminUpdateSkill(reqEntity); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) GetAllSkills(e *emptypb.Empty, srv pb.UserService_GetAllSkillsServer) error {
+	skills, err := user.adapters.AdminGetAllSkills()
+	if err != nil {
+		return err
+	}
+
+	for _, skill := range skills {
+		res := &pb.SkillResponse{
+			Id:         int32(skill.SkillId),
+			Skill:      skill.SkillName,
+			CategoryId: int32(skill.CategoryId),
+			Category:   skill.CategoryName,
+		}
+		err := srv.Send(res)
+		if err != nil {
 			return err
 		}
 	}
