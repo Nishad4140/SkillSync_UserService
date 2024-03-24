@@ -56,6 +56,33 @@ func (user *UserAdapter) CreateClientProfile(userID string) error {
 	return nil
 }
 
+func (user *UserAdapter) GetClientProfileIdByUserId(userId string) (string, error) {
+	var profileId string
+	query := "SELECT id FROM client_profiles WHERE client_id = ?"
+	if err := user.DB.Raw(query, userId).Scan(&profileId).Error; err != nil {
+		return "", err
+	}
+	return profileId, nil
+}
+
+func (user *UserAdapter) UploadClientProfileImage(image, profileId string) (string, error) {
+	var imageUrl string
+	query := "UPDATE client_profiles SET image = $1 WHERE id = $2 RETURNING image"
+	if err := user.DB.Raw(query, image, profileId).Scan(&imageUrl).Error; err != nil {
+		return "", err
+	}
+	return imageUrl, nil
+}
+
+func (user *UserAdapter) GetClientProfileImage(profileId string) (string, error) {
+	var image string
+	query := "SELECT image FROM client_profiles WHERE id = $1 AND image NOT IN (NULL)"
+	if err := user.DB.Raw(query, profileId).Scan(&image).Error; err != nil {
+		return "", err
+	}
+	return image, nil
+}
+
 func (user *UserAdapter) FreelancerSignup(freelancerData entities.Freelancer) (entities.Freelancer, error) {
 	freelancerId := uuid.New()
 	var res entities.Freelancer

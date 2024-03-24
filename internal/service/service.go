@@ -380,6 +380,37 @@ func (user *UserService) ClientGetAddress(ctx context.Context, req *pb.GetUserBy
 	return res, nil
 }
 
+func (user *UserService) ClientUploadProfileImage(ctx context.Context, req *pb.ImageRequest) (*pb.ImageResponse, error) {
+	profileId, err := user.adapters.GetClientProfileIdByUserId(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	url, err := user.usecase.UploadImage(req, profileId)
+	if err != nil {
+		return nil, err
+	}
+	res := &pb.ImageResponse{
+		Url: url,
+	}
+	return res, nil
+}
+
+func (user *UserService) ClientGetProfileImage(ctx context.Context, req *pb.GetUserById) (*pb.ImageResponse, error) {
+	profileId, err := user.adapters.GetClientProfileIdByUserId(req.Id)
+	if err != nil {
+		return nil, err
+	}
+	image, err := user.adapters.GetClientProfileImage(profileId)
+	if err != nil {
+		return nil, err
+	}
+	res := &pb.ImageResponse{
+		Url: image,
+	}
+	return res, nil
+}
+
+
 func (user *UserService) FreelancerAddAddress(ctx context.Context, req *pb.AddAddressRequest) (*emptypb.Empty, error) {
 	address, err := user.adapters.GetAddressByFreelancerId(req.UserId)
 	if err != nil {

@@ -14,6 +14,10 @@ type AdapterInterface interface {
 	ClientAddAddress(address entities.Address, userId string) error
 	ClientUpdateAddress(req entities.Address) error
 	GetAddressByClientId(clientId string) (entities.Address, error)
+	GetClientProfileIdByUserId(userId string) (string, error)
+	UploadClientProfileImage(image, profileId string) (string, error)
+	GetClientProfileImage(profileId string) (string, error)
+	
 
 	// Freelancer
 	FreelancerSignup(entities.Freelancer) (entities.Freelancer, error)
