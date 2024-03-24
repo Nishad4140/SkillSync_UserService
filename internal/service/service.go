@@ -328,7 +328,7 @@ func (user *UserService) GetAllSkills(e *emptypb.Empty, srv pb.UserService_GetAl
 }
 
 func (user *UserService) ClientAddAddress(ctx context.Context, req *pb.AddAddressRequest) (*emptypb.Empty, error) {
-	address, err := user.adapters.GetAddressByUserId(req.UserId)
+	address, err := user.adapters.GetAddressByClientId(req.UserId)
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}
@@ -366,7 +366,60 @@ func (user *UserService) ClientUpdateAddress(ctx context.Context, req *pb.Addres
 }
 
 func (user *UserService) ClientGetAddress(ctx context.Context, req *pb.GetUserById) (*pb.AddressResponse, error) {
-	address, err := user.adapters.GetAddressByUserId(req.Id)
+	address, err := user.adapters.GetAddressByClientId(req.Id)
+	if err != nil {
+		return &pb.AddressResponse{}, err
+	}
+	res := &pb.AddressResponse{
+		Id:       address.Id.String(),
+		Country:  address.Country,
+		State:    address.State,
+		District: address.District,
+		City:     address.City,
+	}
+	return res, nil
+}
+
+func (user *UserService) FreelancerAddAddress(ctx context.Context, req *pb.AddAddressRequest) (*emptypb.Empty, error) {
+	address, err := user.adapters.GetAddressByFreelancerId(req.UserId)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	if address.Country != "" {
+		return &emptypb.Empty{}, fmt.Errorf("you have added a address already, please edit on that")
+	}
+	reqEntity := entities.Address{
+		Country:  req.Country,
+		State:    req.State,
+		District: req.District,
+		City:     req.City,
+	}
+	if err := user.adapters.FreelancerAddAddress(reqEntity, req.UserId); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) FreelancerUpdateAddress(ctx context.Context, req *pb.AddressResponse) (*emptypb.Empty, error) {
+	addressId, err := uuid.Parse(req.Id)
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
+	reqEntity := entities.Address{
+		Id:       addressId,
+		Country:  req.Country,
+		State:    req.State,
+		District: req.District,
+		City:     req.City,
+	}
+	if err := user.adapters.FreelancerUpdateAddress(reqEntity); err != nil {
+		return &emptypb.Empty{}, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) FreelancerGetAddress(ctx context.Context, req *pb.GetUserById) (*pb.AddressResponse, error) {
+	address, err := user.adapters.GetAddressByFreelancerId(req.Id)
 	if err != nil {
 		return &pb.AddressResponse{}, err
 	}

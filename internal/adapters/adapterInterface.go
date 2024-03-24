@@ -12,14 +12,17 @@ type AdapterInterface interface {
 	GetClientByPhone(phone string) (entities.Client, error)
 	CreateClientProfile(userID string) error
 	ClientAddAddress(address entities.Address, userId string) error
-	ClientUpdateAddress(address entities.Address) error
-	GetAddressByUserId(userId string) (entities.Address, error)
+	ClientUpdateAddress(req entities.Address) error
+	GetAddressByClientId(clientId string) (entities.Address, error)
 
 	// Freelancer
 	FreelancerSignup(entities.Freelancer) (entities.Freelancer, error)
 	GetFreelancerByEmail(email string) (entities.Freelancer, error)
 	GetFreelancerByPhone(phone string) (entities.Freelancer, error)
 	CreateFreelancerProfile(req entities.FreelancerProfile) error
+	FreelancerAddAddress(address entities.Address, userId string) error
+	FreelancerUpdateAddress(req entities.Address) error
+	GetAddressByFreelancerId(freelancerId string) (entities.Address, error)
 
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)
