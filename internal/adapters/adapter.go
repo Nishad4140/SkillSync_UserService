@@ -83,6 +83,22 @@ func (user *UserAdapter) GetClientProfileImage(profileId string) (string, error)
 	return image, nil
 }
 
+func (user *UserAdapter) ClientEditName(req entities.Client) error {
+	query := "UPDATE clients SET name = $1 WHERE id = $2"
+	if err := user.DB.Exec(query, req.Name, req.ID).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) ClientEditPhone(req entities.Client) error {
+	query := "UPDATE clients SET phone = $1 WHERE id = $2"
+	if err := user.DB.Exec(query, req.Phone, req.ID).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (user *UserAdapter) FreelancerSignup(freelancerData entities.Freelancer) (entities.Freelancer, error) {
 	freelancerId := uuid.New()
 	var res entities.Freelancer

@@ -17,7 +17,8 @@ type AdapterInterface interface {
 	GetClientProfileIdByUserId(userId string) (string, error)
 	UploadClientProfileImage(image, profileId string) (string, error)
 	GetClientProfileImage(profileId string) (string, error)
-	
+	ClientEditName(req entities.Client) error
+	ClientEditPhone(req entities.Client) error
 
 	// Freelancer
 	FreelancerSignup(entities.Freelancer) (entities.Freelancer, error)

@@ -410,6 +410,42 @@ func (user *UserService) ClientGetProfileImage(ctx context.Context, req *pb.GetU
 	return res, nil
 }
 
+func (user *UserService) ClientEditName(ctx context.Context, req *pb.EditNameRequest) (*emptypb.Empty, error) {
+	userId, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	reqEntity := entities.Client{
+		ID:   userId,
+		Name: req.Name,
+	}
+	if err := user.adapters.ClientEditName(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (user *UserService) ClientEditPhone(ctx context.Context, req *pb.EditPhoneRequest) (*emptypb.Empty, error) {
+	checkPhone, err := user.adapters.GetClientByPhone(req.Phone)
+	if err != nil {
+		return nil, err
+	}
+	userId, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	if checkPhone.ID != uuid.Nil && checkPhone.ID != userId {
+		return nil, fmt.Errorf("this phone number is already used")
+	}
+	reqEntity := entities.Client{
+		ID:    userId,
+		Phone: req.Phone,
+	}
+	if err := user.adapters.ClientEditPhone(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
 
 func (user *UserService) FreelancerAddAddress(ctx context.Context, req *pb.AddAddressRequest) (*emptypb.Empty, error) {
 	address, err := user.adapters.GetAddressByFreelancerId(req.UserId)
