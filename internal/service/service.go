@@ -500,6 +500,43 @@ func (user *UserService) FreelancerGetAddress(ctx context.Context, req *pb.GetUs
 	return res, nil
 }
 
+func (user *UserService) FreelancerEditName(ctx context.Context, req *pb.EditNameRequest) (*emptypb.Empty, error) {
+	freelancerId, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	reqEntity := entities.Freelancer{
+		ID:   freelancerId,
+		Name: req.Name,
+	}
+	if err := user.adapters.FreelancerEditName(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (user *UserService) FreelancerEditPhone(ctx context.Context, req *pb.EditPhoneRequest) (*emptypb.Empty, error) {
+	checkPhone, err := user.adapters.GetFreelancerByPhone(req.Phone)
+	if err != nil {
+		return nil, err
+	}
+	freelancerId, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	if checkPhone.ID != uuid.Nil && checkPhone.ID != freelancerId {
+		return nil, fmt.Errorf("this phone number is already used")
+	}
+	reqEntity := entities.Freelancer{
+		ID:    freelancerId,
+		Phone: req.Phone,
+	}
+	if err := user.adapters.FreelancerEditPhone(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 func (user *UserService) BlockClient(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
 	if err := user.adapters.ClientBlock(req.Id); err != nil {
 		return &emptypb.Empty{}, err

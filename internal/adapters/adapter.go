@@ -136,6 +136,22 @@ func (user *UserAdapter) GetFreelancerByPhone(phone string) (entities.Freelancer
 	return res, nil
 }
 
+func (user *UserAdapter) FreelancerEditName(req entities.Freelancer) error {
+	query := "UPDATE freelancers SET name = $1 WHERE id = $2"
+	if err := user.DB.Exec(query, req.Name, req.ID).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) FreelancerEditPhone(req entities.Freelancer) error {
+	query := "UPDATE freelancers SET phone = $1 WHERE id = $2"
+	if err := user.DB.Exec(query, req.Phone, req.ID).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (user *UserAdapter) GetCategoryById(categoryId int32) (entities.Category, error) {
 	var res entities.Category
 	query := "SELECT * FROM categories WHERE id = ?"

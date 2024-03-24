@@ -28,6 +28,8 @@ type AdapterInterface interface {
 	FreelancerAddAddress(address entities.Address, userId string) error
 	FreelancerUpdateAddress(req entities.Address) error
 	GetAddressByFreelancerId(freelancerId string) (entities.Address, error)
+	FreelancerEditName(req entities.Freelancer) error
+	FreelancerEditPhone(req entities.Freelancer) error
 
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)
