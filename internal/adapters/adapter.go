@@ -136,6 +136,33 @@ func (user *UserAdapter) GetFreelancerByPhone(phone string) (entities.Freelancer
 	return res, nil
 }
 
+func (user *UserAdapter) GetFreelancerProfileIdByUserId(userId string) (string, error) {
+	var profileId string
+	query := "SELECT id FROM freelancer_profiles WHERE freelancer_id = ?"
+	if err := user.DB.Raw(query, userId).Scan(&profileId).Error; err != nil {
+		return "", err
+	}
+	return profileId, nil
+}
+
+func (user *UserAdapter) UploadFreelancerProfileImage(image, profileId string) (string, error) {
+	var imageUrl string
+	query := "UPDATE freelancer_profiles SET image = $1 WHERE id = $2 RETURNING image"
+	if err := user.DB.Raw(query, image, profileId).Scan(&imageUrl).Error; err != nil {
+		return "", err
+	}
+	return imageUrl, nil
+}
+
+func (user *UserAdapter) GetFreelancerProfileImage(profileId string) (string, error) {
+	var image string
+	query := "SELECT image FROM freelancer_profiles WHERE id = $1 AND image NOT IN (NULL)"
+	if err := user.DB.Raw(query, profileId).Scan(&image).Error; err != nil {
+		return "", err
+	}
+	return image, nil
+}
+
 func (user *UserAdapter) FreelancerEditName(req entities.Freelancer) error {
 	query := "UPDATE freelancers SET name = $1 WHERE id = $2"
 	if err := user.DB.Exec(query, req.Name, req.ID).Error; err != nil {

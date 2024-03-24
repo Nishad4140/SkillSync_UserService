@@ -385,7 +385,7 @@ func (user *UserService) ClientUploadProfileImage(ctx context.Context, req *pb.I
 	if err != nil {
 		return nil, err
 	}
-	url, err := user.usecase.UploadImage(req, profileId)
+	url, err := user.usecase.UploadClientImage(req, profileId)
 	if err != nil {
 		return nil, err
 	}
@@ -496,6 +496,36 @@ func (user *UserService) FreelancerGetAddress(ctx context.Context, req *pb.GetUs
 		State:    address.State,
 		District: address.District,
 		City:     address.City,
+	}
+	return res, nil
+}
+
+func (user *UserService) FreelancerUploadProfileImage(ctx context.Context, req *pb.ImageRequest) (*pb.ImageResponse, error) {
+	profileId, err := user.adapters.GetFreelancerProfileIdByUserId(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	url, err := user.usecase.UploadFreelancerImage(req, profileId)
+	if err != nil {
+		return nil, err
+	}
+	res := &pb.ImageResponse{
+		Url: url,
+	}
+	return res, nil
+}
+
+func (user *UserService) FreelancerGetProfileImage(ctx context.Context, req *pb.GetUserById) (*pb.ImageResponse, error) {
+	profileId, err := user.adapters.GetFreelancerProfileIdByUserId(req.Id)
+	if err != nil {
+		return nil, err
+	}
+	image, err := user.adapters.GetFreelancerProfileImage(profileId)
+	if err != nil {
+		return nil, err
+	}
+	res := &pb.ImageResponse{
+		Url: image,
 	}
 	return res, nil
 }

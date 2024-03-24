@@ -28,6 +28,9 @@ type AdapterInterface interface {
 	FreelancerAddAddress(address entities.Address, userId string) error
 	FreelancerUpdateAddress(req entities.Address) error
 	GetAddressByFreelancerId(freelancerId string) (entities.Address, error)
+	GetFreelancerProfileIdByUserId(userId string) (string, error)
+	UploadFreelancerProfileImage(image, profileId string) (string, error)
+	GetFreelancerProfileImage(profileId string) (string, error)
 	FreelancerEditName(req entities.Freelancer) error
 	FreelancerEditPhone(req entities.Freelancer) error
 
