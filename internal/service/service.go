@@ -567,6 +567,81 @@ func (user *UserService) FreelancerEditPhone(ctx context.Context, req *pb.EditPh
 	return nil, nil
 }
 
+func (user *UserService) FreelancerAddSkill(ctx context.Context, req *pb.SkillRequest) (*emptypb.Empty, error) {
+	checkSkill, err := user.adapters.GetSkillById(int(req.SkillId))
+	if err != nil {
+		return nil, err
+	}
+	if checkSkill.SkillId == 0 {
+		return nil, fmt.Errorf("please enter a valid skill id")
+	}
+	profileId, err := user.adapters.GetFreelancerProfileIdByUserId(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	checkUserSkill, err := user.adapters.GetFreelancerSkillById(profileId, int(req.SkillId))
+	if err != nil {
+		return nil, err
+	}
+	if checkUserSkill.SkillId != 0 {
+		return nil, fmt.Errorf("you already added this skill")
+	}
+	profile, err := uuid.Parse(profileId)
+	if err != nil {
+		return nil, err
+	}
+	reqEntity := entities.FreelancerSkill{
+		ProfileId: profile,
+		SkillId:   int(req.SkillId),
+	}
+	if err := user.adapters.FreelancerAddSkill(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (user *UserService) FreelancerDeleteSkill(ctx context.Context, req *pb.SkillRequest) (*emptypb.Empty, error) {
+	profileId, err := user.adapters.GetFreelancerProfileIdByUserId(req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	profile, err := uuid.Parse(profileId)
+	if err != nil {
+		return nil, err
+	}
+	reqEntity := entities.FreelancerSkill{
+		ProfileId: profile,
+		SkillId:   int(req.SkillId),
+	}
+	if err := user.adapters.FreelancerDeleteSkill(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (user *UserService) FreelancerGetAllSkill(req *pb.GetUserById, srv pb.UserService_FreelancerGetAllSkillServer) error {
+	profileId, err := user.adapters.GetFreelancerProfileIdByUserId(req.Id)
+	if err != nil {
+		return err
+	}
+	skills, err := user.adapters.FreelancerGetAllSkill(profileId)
+	if err != nil {
+		return err
+	}
+	for _, skill := range skills {
+		res := &pb.SkillResponse{
+			Id:         int32(skill.SkillId),
+			Skill:      skill.SkillName,
+			CategoryId: int32(skill.CategoryId),
+			Category:   skill.CategoryName,
+		}
+		if err := srv.Send(res); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (user *UserService) BlockClient(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
 	if err := user.adapters.ClientBlock(req.Id); err != nil {
 		return &emptypb.Empty{}, err

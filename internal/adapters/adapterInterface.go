@@ -33,6 +33,11 @@ type AdapterInterface interface {
 	GetFreelancerProfileImage(profileId string) (string, error)
 	FreelancerEditName(req entities.Freelancer) error
 	FreelancerEditPhone(req entities.Freelancer) error
+	GetSkillById(id int) (helperstruct.SkillHelper, error)
+	GetFreelancerSkillById(profileId string, skillId int) (entities.FreelancerSkill, error)
+	FreelancerAddSkill(req entities.FreelancerSkill) error
+	FreelancerDeleteSkill(req entities.FreelancerSkill) error
+	FreelancerGetAllSkill(profileId string) ([]helperstruct.SkillHelper, error)
 
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)

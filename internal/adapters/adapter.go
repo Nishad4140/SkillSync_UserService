@@ -256,6 +256,50 @@ func (user *UserAdapter) AdminGetAllSkills() ([]helperstruct.SkillHelper, error)
 	return res, nil
 }
 
+func (user *UserAdapter) GetSkillById(id int) (helperstruct.SkillHelper, error) {
+	var res helperstruct.SkillHelper
+	query := "SELECT s.id AS skill_id, s.name AS skill_name, c.id AS category_id, c.name AS category_name FROM skills s JOIN categories c ON c.id = s.category_id WHERE s.id = ?"
+	if err := user.DB.Raw(query, id).Scan(&res).Error; err != nil {
+		return helperstruct.SkillHelper{}, err
+	}
+	return res, nil
+}
+
+func (user *UserAdapter) GetFreelancerSkillById(profileId string, skillId int) (entities.FreelancerSkill, error) {
+	var res entities.FreelancerSkill
+	query := "SELECT * FROM freelancer_skills WHERE profile_id = $1 AND skill_id = $2"
+	if err := user.DB.Raw(query, profileId, skillId).Scan(&res).Error; err != nil {
+		return entities.FreelancerSkill{}, err
+	}
+	return res, nil
+}
+
+func (user *UserAdapter) FreelancerAddSkill(req entities.FreelancerSkill) error {
+	id := uuid.New()
+	query := "INSERT INTO freelancer_skills (id, skill_id, profile_id) VALUES ($1, $2, $3)"
+	if err := user.DB.Exec(query, id, req.SkillId, req.ProfileId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) FreelancerDeleteSkill(req entities.FreelancerSkill) error {
+	query := "DELETE FROM freelancer_skills WHERE skill_id = $1 AND profile_id = $2"
+	if err := user.DB.Exec(query, req.SkillId, req.ProfileId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) FreelancerGetAllSkill(profileId string) ([]helperstruct.SkillHelper, error) {
+	var res []helperstruct.SkillHelper
+	query := "SELECT s.id AS skill_id, s.name AS skill_name, c.id AS category_id, c.name AS category_name FROM skills s JOIN categories c ON c.id = s.category_id WHERE profile_id = ?"
+	if err := user.DB.Raw(query, profileId).Scan(&res).Error; err != nil {
+		return []helperstruct.SkillHelper{}, err
+	}
+	return res, nil
+}
+
 func (user *UserAdapter) GetCategoryByName(name string) (entities.Category, error) {
 	var res entities.Category
 	query := "SELECT * FROM categories WHERE name = ?"

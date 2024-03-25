@@ -41,6 +41,14 @@ type FreelancerProfile struct {
 	Image                    string
 }
 
+type FreelancerSkill struct {
+	ID                uuid.UUID
+	ProfileId         uuid.UUID
+	FreelancerProfile FreelancerProfile `gorm:"foreignKey:ProfileId"`
+	SkillId           int
+	Skill             Skill `gorm:"foreignKey:SkillId"`
+}
+
 type Admin struct {
 	ID       uuid.UUID `gorm:"primaryKey;unique;not null"`
 	Name     string
