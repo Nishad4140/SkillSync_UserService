@@ -76,7 +76,7 @@ func (user *UserService) ClientSignup(ctx context.Context, req *pb.ClientSignUpR
 }
 
 func (user *UserService) ClientCreateProfile(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
-	if err := user.adapters.CreateClientProfile(req.Id); err != nil {
+	if err := user.adapters.ClientCreateProfile(req.Id); err != nil {
 		return &emptypb.Empty{}, err
 	}
 	return &emptypb.Empty{}, nil
@@ -144,6 +144,9 @@ func (user *UserService) ClientLogin(ctx context.Context, req *pb.LoginRequest) 
 	if err != nil {
 		return &pb.ClientSignUpResponse{}, err
 	}
+	if clientData.IsBlocked {
+		return &pb.ClientSignUpResponse{}, fmt.Errorf("you have been blocked by admin")
+	}
 	if clientData.Email == "" {
 		return &pb.ClientSignUpResponse{}, fmt.Errorf("invalid credentials")
 	}
@@ -165,6 +168,9 @@ func (user *UserService) FreelancerLogin(ctx context.Context, req *pb.LoginReque
 	freelancerData, err := user.adapters.GetFreelancerByEmail(req.Emial)
 	if err != nil {
 		return &pb.FreelancerSignUpResponse{}, err
+	}
+	if freelancerData.IsBlocked {
+		return &pb.FreelancerSignUpResponse{}, fmt.Errorf("you have been blocked by admin")
 	}
 	if freelancerData.Email == "" {
 		return &pb.FreelancerSignUpResponse{}, fmt.Errorf("invalid credentials")
@@ -257,7 +263,7 @@ func (user *UserService) GetAllCategory(req *emptypb.Empty, srv pb.UserService_G
 	return nil
 }
 
-func (user *UserService) GetCategorybyId(ctx context.Context, req *pb.GetCategoryByIdRequest) (*pb.UpdateCategoryRequest, error) {
+func (user *UserService) GetCategoryById(ctx context.Context, req *pb.GetCategoryByIdRequest) (*pb.UpdateCategoryRequest, error) {
 	category, err := user.adapters.GetCategoryById(req.Id)
 	if err != nil {
 		return nil, err
@@ -376,6 +382,20 @@ func (user *UserService) ClientGetAddress(ctx context.Context, req *pb.GetUserBy
 		State:    address.State,
 		District: address.District,
 		City:     address.City,
+	}
+	return res, nil
+}
+
+func (user *UserService) GetClientById(ctx context.Context, req *pb.GetUserById) (*pb.ClientSignUpResponse, error) {
+	client, err := user.adapters.GetClientById(req.Id)
+	if err != nil {
+		return nil, err
+	}
+	res := &pb.ClientSignUpResponse{
+		Id:    client.ID.String(),
+		Name:  client.Name,
+		Email: client.Email,
+		Phone: client.Phone,
 	}
 	return res, nil
 }
@@ -640,6 +660,14 @@ func (user *UserService) FreelancerGetAllSkill(req *pb.GetUserById, srv pb.UserS
 		}
 	}
 	return nil
+}
+
+func (user *UserService) FreelancerAddExperience(ctx context.Context, req *pb.AddExperienceRequest) (*emptypb.Empty, error) {
+	err := user.adapters.FreelancerAddExperience(req.UserId, req.Experience)
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 func (user *UserService) BlockClient(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {

@@ -34,7 +34,7 @@ type Freelancer struct {
 type FreelancerProfile struct {
 	ID                       uuid.UUID `gorm:"primaryKey;unique;not null"`
 	FreelancerId             uuid.UUID
-	Freelancer               Freelancer `gorm:"foreignKey:ClientID"`
+	Freelancer               Freelancer `gorm:"foreignKey:FreelancerId"`
 	AddressId                uuid.UUID
 	Address                  Address `gorm:"foreignKey:AddressId"`
 	ExperienceInCurrentField string

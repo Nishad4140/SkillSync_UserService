@@ -10,11 +10,12 @@ type AdapterInterface interface {
 	ClientSignup(entities.Client) (entities.Client, error)
 	GetClientByEmail(email string) (entities.Client, error)
 	GetClientByPhone(phone string) (entities.Client, error)
-	CreateClientProfile(userID string) error
+	ClientCreateProfile(userID string) error
 	ClientAddAddress(address entities.Address, userId string) error
 	ClientUpdateAddress(req entities.Address) error
 	GetAddressByClientId(clientId string) (entities.Address, error)
 	GetClientProfileIdByUserId(userId string) (string, error)
+	GetClientById(userId string) (entities.Client, error)
 	UploadClientProfileImage(image, profileId string) (string, error)
 	GetClientProfileImage(profileId string) (string, error)
 	ClientEditName(req entities.Client) error
@@ -38,6 +39,8 @@ type AdapterInterface interface {
 	FreelancerAddSkill(req entities.FreelancerSkill) error
 	FreelancerDeleteSkill(req entities.FreelancerSkill) error
 	FreelancerGetAllSkill(profileId string) ([]helperstruct.SkillHelper, error)
+	FreelancerAddExperience(freelancerId, experience string) error
+	FreelancerGetExperience(freelancerId string) (string, error)
 
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)

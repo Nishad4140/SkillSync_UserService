@@ -22,7 +22,7 @@ func NewUserAdapter(db *gorm.DB) *UserAdapter {
 func (user *UserAdapter) ClientSignup(userData entities.Client) (entities.Client, error) {
 	var res entities.Client
 	id := uuid.New()
-	query := "INSERT INTO clients (id, name, email, phone, password) VALUES ($1, $2, $3, $4, $5) RETURNING *"
+	query := "INSERT INTO clients (id, name, email, phone, password, is_blocked) VALUES ($1, $2, $3, $4, $5, false) RETURNING *"
 	if err := user.DB.Raw(query, id, userData.Name, userData.Email, userData.Phone, userData.Password).Scan(&res).Error; err != nil {
 		return entities.Client{}, fmt.Errorf("error in inserting the values")
 	}
@@ -47,10 +47,10 @@ func (user *UserAdapter) GetClientByPhone(phone string) (entities.Client, error)
 	return res, nil
 }
 
-func (user *UserAdapter) CreateClientProfile(userID string) error {
+func (user *UserAdapter) ClientCreateProfile(userID string) error {
 	profileID := uuid.New()
-	query := "INSERT INTO client_profiles (id, user_id) ($1, $2)"
-	if err := user.DB.Raw(query, profileID, userID).Error; err != nil {
+	query := "INSERT INTO client_profiles (id, client_id) VALUES ($1, $2)"
+	if err := user.DB.Exec(query, profileID, userID).Error; err != nil {
 		return err
 	}
 	return nil
@@ -97,6 +97,15 @@ func (user *UserAdapter) ClientEditPhone(req entities.Client) error {
 		return err
 	}
 	return nil
+}
+
+func (user *UserAdapter) GetClientById(userId string) (entities.Client, error) {
+	var res entities.Client
+	query := "SELECT * FROM clients WHERE id = ?"
+	if err := user.DB.Raw(query, userId).Scan(&res).Error; err != nil {
+		return entities.Client{}, err
+	}
+	return res, nil
 }
 
 func (user *UserAdapter) FreelancerSignup(freelancerData entities.Freelancer) (entities.Freelancer, error) {
@@ -293,7 +302,7 @@ func (user *UserAdapter) FreelancerDeleteSkill(req entities.FreelancerSkill) err
 
 func (user *UserAdapter) FreelancerGetAllSkill(profileId string) ([]helperstruct.SkillHelper, error) {
 	var res []helperstruct.SkillHelper
-	query := "SELECT s.id AS skill_id, s.name AS skill_name, c.id AS category_id, c.name AS category_name FROM skills s JOIN categories c ON c.id = s.category_id WHERE profile_id = ?"
+	query := "SELECT s.id as skill_id, s.name AS skill_name, c.id AS category_id, c.name as category_name FROM skills s JOIN categories c ON c.id = s.category_id JOIN freelancer_skills f ON f.skill_id = s.id WHERE profile_id = $1"
 	if err := user.DB.Raw(query, profileId).Scan(&res).Error; err != nil {
 		return []helperstruct.SkillHelper{}, err
 	}
@@ -323,14 +332,14 @@ func (user *UserAdapter) ClientAddAddress(req entities.Address, userId string) e
 }
 
 func (user *UserAdapter) GetAddressByClientId(clientId string) (entities.Address, error) {
-	var addressId string
-	query := "SELECT address_id FROM client_profiles WHERE client_id = ?"
-	if err := user.DB.Raw(query, clientId).Scan(&addressId).Error; err != nil {
+	var clientProfile entities.ClientProfile
+	query := "SELECT * FROM client_profiles WHERE client_id = ?"
+	if err := user.DB.Raw(query, clientId).Scan(&clientProfile).Error; err != nil {
 		return entities.Address{}, err
 	}
 	var res entities.Address
 	selectQuery := "SELECT * FROM addresses WHERE id = ?"
-	if err := user.DB.Raw(selectQuery, addressId).Scan(&res).Error; err != nil {
+	if err := user.DB.Raw(selectQuery, clientProfile.AddressId).Scan(&res).Error; err != nil {
 		return entities.Address{}, err
 	}
 	return res, nil
@@ -358,14 +367,14 @@ func (user *UserAdapter) FreelancerAddAddress(req entities.Address, freelancerId
 }
 
 func (user *UserAdapter) GetAddressByFreelancerId(freelancerId string) (entities.Address, error) {
-	var addressId string
-	query := "SELECT address_id FROM freelancer_profiles WHERE freelancer_id = ?"
-	if err := user.DB.Raw(query, freelancerId).Scan(&addressId).Error; err != nil {
+	var freelancerProfile entities.FreelancerProfile
+	query := "SELECT * FROM freelancer_profiles WHERE freelancer_id = ?"
+	if err := user.DB.Raw(query, freelancerId).Scan(&freelancerProfile).Error; err != nil {
 		return entities.Address{}, err
 	}
 	var res entities.Address
 	selectQuery := "SELECT * FROM addresses WHERE id = ?"
-	if err := user.DB.Raw(selectQuery, addressId).Scan(&res).Error; err != nil {
+	if err := user.DB.Raw(selectQuery, freelancerProfile.AddressId).Scan(&res).Error; err != nil {
 		return entities.Address{}, err
 	}
 	return res, nil
@@ -377,6 +386,23 @@ func (user *UserAdapter) FreelancerUpdateAddress(req entities.Address) error {
 		return err
 	}
 	return nil
+}
+
+func (user *UserAdapter) FreelancerAddExperience(freelancerId, experience string) error {
+	query := "UPDATE freelancer_profiles SET experience_in_current_field = $1 WHERE freelancer_id = $2"
+	if err := user.DB.Exec(query, experience, freelancerId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) FreelancerGetExperience(freelancerId string) (string, error) {
+	var res string
+	query := "SELECT COALESCE(experience_in_current_field, '0 years') FROM profiles WHERE freelancer_id = ?"
+	if err := user.DB.Raw(query, freelancerId).Scan(&res).Error; err != nil {
+		return "", err
+	}
+	return res, nil
 }
 
 func (user *UserAdapter) ClientBlock(clientId string) error {

@@ -25,7 +25,7 @@ func NewUserUsecase(userAdapter adapters.AdapterInterface) *UserUsecase {
 
 func (user *UserUsecase) UploadClientImage(req *pb.ImageRequest, profileId string) (string, error) {
 	minioClient, err := minio.New(os.Getenv("MINIO_ENDPOINT"), &minio.Options{
-		Creds:  credentials.NewStaticV4(os.Getenv("MINIO_ACCESSKEY"), os.Getenv("MINO_SECRETKEY"), ""),
+		Creds:  credentials.NewStaticV4(os.Getenv("MINIO_ACCESSKEY"), os.Getenv("MINIO_SECRETKEY"), ""),
 		Secure: false,
 	})
 	if err != nil {
@@ -53,7 +53,7 @@ func (user *UserUsecase) UploadClientImage(req *pb.ImageRequest, profileId strin
 
 func (user *UserUsecase) UploadFreelancerImage(req *pb.ImageRequest, profileId string) (string, error) {
 	minioClient, err := minio.New(os.Getenv("MINIO_ENDPOINT"), &minio.Options{
-		Creds:  credentials.NewStaticV4(os.Getenv("MINIO_ACCESSKEY"), os.Getenv("MINO_SECRETKEY"), ""),
+		Creds:  credentials.NewStaticV4(os.Getenv("MINIO_ACCESSKEY"), os.Getenv("MINIO_SECRETKEY"), ""),
 		Secure: false,
 	})
 	if err != nil {
