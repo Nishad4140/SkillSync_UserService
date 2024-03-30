@@ -1,6 +1,10 @@
 package entities
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Client struct {
 	ID        uuid.UUID `gorm:"primaryKey;unique;not null"`
@@ -75,4 +79,14 @@ type Address struct {
 	State    string
 	District string
 	City     string
+}
+
+type Education struct {
+	ID           uuid.UUID
+	FreelancerID uuid.UUID
+	Freelancer   Freelancer `gorm:"foreignKey:FreelancerID"`
+	Degree       string
+	Institution  string
+	StartDate    time.Time `gorm:"type:date"`
+	EndDate      time.Time `gorm:"type:date"`
 }

@@ -670,6 +670,88 @@ func (user *UserService) FreelancerAddExperience(ctx context.Context, req *pb.Ad
 	return nil, nil
 }
 
+func (user *UserService) FreelancerAddEducation(ctx context.Context, req *pb.EducationRequest) (*emptypb.Empty, error) {
+	userId, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, fmt.Errorf("error while parsing the userID")
+	}
+	StartDate, err := helper.ConvertStringToDate(req.StartDate)
+	if err != nil {
+		return nil, err
+	}
+	EndDate, err := helper.ConvertStringToDate(req.EndDate)
+	if err != nil {
+		return nil, err
+	}
+	reqEntity := entities.Education{
+		FreelancerID: userId,
+		Degree:       req.Degree,
+		Institution:  req.Institution,
+		StartDate:    StartDate,
+		EndDate:      EndDate,
+	}
+	if err := user.adapters.FreelancerAddEducation(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (user *UserService) FreelancerEditEducation(ctx context.Context, req *pb.EducationResponse) (*emptypb.Empty, error) {
+	Id, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, fmt.Errorf("error while parsing the userID")
+	}
+	StartDate, err := helper.ConvertStringToDate(req.StartDate)
+	if err != nil {
+		return nil, err
+	}
+	EndDate, err := helper.ConvertStringToDate(req.EndDate)
+	if err != nil {
+		return nil, err
+	}
+	reqEntity := entities.Education{
+		ID:          Id,
+		Degree:      req.Degree,
+		Institution: req.Institution,
+		StartDate:   StartDate,
+		EndDate:     EndDate,
+	}
+	if err := user.adapters.FreelancerEditEducation(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (user *UserService) FreelancerGetEducation(req *pb.GetUserById, srv pb.UserService_FreelancerGetEducationServer) error {
+	educations, err := user.adapters.FreelancerGetEducation(req.Id)
+	if err != nil {
+		return err
+	}
+	for _, education := range educations {
+		res := &pb.EducationResponse{
+			Id:          education.ID.String(),
+			Degree:      education.Degree,
+			Institution: education.Institution,
+			StartDate:   education.StartDate.String(),
+			EndDate:     education.EndDate.String(),
+		}
+		if err := srv.Send(res); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (user *UserService) FreelancerRemoveEducation(ctx context.Context, req *pb.EducationById) (*emptypb.Empty, error) {
+	if req.EducationId == "" {
+		return nil, fmt.Errorf("enter a education id")
+	}
+	if err := user.adapters.FreelancerRemoveEducation(req.EducationId); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 func (user *UserService) BlockClient(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
 	if err := user.adapters.ClientBlock(req.Id); err != nil {
 		return &emptypb.Empty{}, err

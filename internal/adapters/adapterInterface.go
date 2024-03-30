@@ -41,6 +41,10 @@ type AdapterInterface interface {
 	FreelancerGetAllSkill(profileId string) ([]helperstruct.SkillHelper, error)
 	FreelancerAddExperience(freelancerId, experience string) error
 	FreelancerGetExperience(freelancerId string) (string, error)
+	FreelancerAddEducation(req entities.Education) error
+	FreelancerEditEducation(req entities.Education) error
+	FreelancerGetEducation(userId string) ([]entities.Education, error)
+	FreelancerRemoveEducation(educationId string) error
 
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)

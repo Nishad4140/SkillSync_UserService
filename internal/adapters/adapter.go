@@ -309,6 +309,40 @@ func (user *UserAdapter) FreelancerGetAllSkill(profileId string) ([]helperstruct
 	return res, nil
 }
 
+func (user *UserAdapter) FreelancerAddEducation(req entities.Education) error {
+	id := uuid.New()
+	query := "INSERT INTO educations (id, freelancer_id, degree, institution, start_date, end_date) VALUES ($1, $2, $3, $4, $5, $6)"
+	if err := user.DB.Exec(query, id, req.FreelancerID, req.Degree, req.Institution, req.StartDate, req.EndDate).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) FreelancerEditEducation(req entities.Education) error {
+	query := "UPDATE educations SET degree = $1, institution = $2, start_date = $3, end_date = $4 WHERE id = $5"
+	if err := user.DB.Exec(query, req.Degree, req.Institution, req.StartDate, req.EndDate, req.ID).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) FreelancerGetEducation(userId string) ([]entities.Education, error) {
+	var res []entities.Education
+	query := "SELECT * FROM educations WJERE user_id = ?"
+	if err := user.DB.Raw(query, userId).Scan(&res).Error; err != nil {
+		return []entities.Education{}, err
+	}
+	return res, nil
+}
+
+func (user *UserAdapter) FreelancerRemoveEducation(educationId string) error {
+	query := "DELETE FROM educations WHERE id  = ?"
+	if err := user.DB.Exec(query, educationId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (user *UserAdapter) GetCategoryByName(name string) (entities.Category, error) {
 	var res entities.Category
 	query := "SELECT * FROM categories WHERE name = ?"

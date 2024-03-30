@@ -1,6 +1,11 @@
 package helper
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"fmt"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -11,8 +16,13 @@ func HashPassword(password string) (string, error) {
 }
 func CompareHashedPassword(hashedPassword, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err == nil
+}
+func ConvertStringToDate(data string) (time.Time, error) {
+	layOut := "02-01-2006"
+	date, err := time.Parse(layOut, data)
 	if err != nil {
-		return false
+		return time.Time{}, fmt.Errorf("error while converting to time")
 	}
-	return true
+	return date, nil
 }

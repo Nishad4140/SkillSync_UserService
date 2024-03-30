@@ -24,6 +24,7 @@ func InitDB(connectTo string) (*gorm.DB, error) {
 		&entities.Category{},
 		&entities.Skill{},
 		&entities.Admin{},
+		&entities.Education{},
 	)
 	return db, nil
 }
