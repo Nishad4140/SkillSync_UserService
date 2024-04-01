@@ -76,7 +76,7 @@ func (user *UserAdapter) UploadClientProfileImage(image, profileId string) (stri
 
 func (user *UserAdapter) GetClientProfileImage(profileId string) (string, error) {
 	var image string
-	query := "SELECT image FROM client_profiles WHERE id = $1 AND image NOT IN (NULL)"
+	query := "SELECT image FROM client_profiles WHERE id = $1 AND image IS NOT NULL"
 	if err := user.DB.Raw(query, profileId).Scan(&image).Error; err != nil {
 		return "", err
 	}
@@ -165,7 +165,7 @@ func (user *UserAdapter) UploadFreelancerProfileImage(image, profileId string) (
 
 func (user *UserAdapter) GetFreelancerProfileImage(profileId string) (string, error) {
 	var image string
-	query := "SELECT image FROM freelancer_profiles WHERE id = $1 AND image NOT IN (NULL)"
+	query := "SELECT image FROM freelancer_profiles WHERE id = $1 AND image IS NOT NULL"
 	if err := user.DB.Raw(query, profileId).Scan(&image).Error; err != nil {
 		return "", err
 	}
@@ -328,7 +328,7 @@ func (user *UserAdapter) FreelancerEditEducation(req entities.Education) error {
 
 func (user *UserAdapter) FreelancerGetEducation(userId string) ([]entities.Education, error) {
 	var res []entities.Education
-	query := "SELECT * FROM educations WJERE user_id = ?"
+	query := "SELECT * FROM educations WHERE freelancer_id = ?"
 	if err := user.DB.Raw(query, userId).Scan(&res).Error; err != nil {
 		return []entities.Education{}, err
 	}
@@ -353,7 +353,7 @@ func (user *UserAdapter) FreelancerAddTitle(req entities.FreelancerProfile) erro
 
 func (user *UserAdapter) FreelancerGetProfile(freelancerId string) (entities.FreelancerProfile, error) {
 	var res entities.FreelancerProfile
-	query := "SELECT * FROM freelancer_profiles WHERE freelancere_id = ?"
+	query := "SELECT * FROM freelancer_profiles WHERE freelancer_id = ?"
 	if err := user.DB.Raw(query, freelancerId).Scan(&res).Error; err != nil {
 		return entities.FreelancerProfile{}, err
 	}
