@@ -520,6 +520,21 @@ func (user *UserService) FreelancerGetAddress(ctx context.Context, req *pb.GetUs
 	return res, nil
 }
 
+func (user *UserService) GetFreelancerById(ctx context.Context, req *pb.GetUserById) (*pb.FreelancerSignUpResponse, error) {
+	freelancer, err := user.adapters.GetFreelancerById(req.Id)
+	if err != nil {
+		return &pb.FreelancerSignUpResponse{}, err
+	}
+	res := &pb.FreelancerSignUpResponse{
+		Id:         freelancer.ID.String(),
+		Name:       freelancer.Name,
+		Email:      freelancer.Email,
+		Phone:      freelancer.Phone,
+		CategoryId: freelancer.CategoryId,
+	}
+	return res, nil
+}
+
 func (user *UserService) FreelancerUploadProfileImage(ctx context.Context, req *pb.ImageRequest) (*pb.ImageResponse, error) {
 	profileId, err := user.adapters.GetFreelancerProfileIdByUserId(req.UserId)
 	if err != nil {
@@ -768,7 +783,19 @@ func (user *UserService) FreelancerAddTitle(ctx context.Context, req *pb.AddTitl
 	return nil, nil
 }
 
-
+func (user *UserService) FreelancerGetProfile(ctx context.Context, req *pb.GetUserById) (*pb.ProfileResponse, error) {
+	profile, err := user.adapters.FreelancerGetProfile(req.Id)
+	if err != nil {
+		return &pb.ProfileResponse{}, err
+	}
+	res := &pb.ProfileResponse{
+		Id:                       profile.ID.String(),
+		FreelancerId:             profile.FreelancerId.String(),
+		Title:                    profile.Title,
+		ExperienceInCurrentField: profile.ExperienceInCurrentField,
+	}
+	return res, nil
+}
 
 func (user *UserService) BlockClient(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
 	if err := user.adapters.ClientBlock(req.Id); err != nil {

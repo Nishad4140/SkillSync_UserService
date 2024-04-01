@@ -30,6 +30,7 @@ type AdapterInterface interface {
 	FreelancerUpdateAddress(req entities.Address) error
 	GetAddressByFreelancerId(freelancerId string) (entities.Address, error)
 	GetFreelancerProfileIdByUserId(userId string) (string, error)
+	GetFreelancerById(freelancerId string) (entities.Freelancer, error)
 	UploadFreelancerProfileImage(image, profileId string) (string, error)
 	GetFreelancerProfileImage(profileId string) (string, error)
 	FreelancerEditName(req entities.Freelancer) error
@@ -46,6 +47,7 @@ type AdapterInterface interface {
 	FreelancerGetEducation(userId string) ([]entities.Education, error)
 	FreelancerRemoveEducation(educationId string) error
 	FreelancerAddTitle(req entities.FreelancerProfile) error
+	FreelancerGetProfile(freelancerId string) (entities.FreelancerProfile, error)
 
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)

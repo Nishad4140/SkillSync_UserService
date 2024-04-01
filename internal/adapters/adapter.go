@@ -351,6 +351,15 @@ func (user *UserAdapter) FreelancerAddTitle(req entities.FreelancerProfile) erro
 	return nil
 }
 
+func (user *UserAdapter) FreelancerGetProfile(freelancerId string) (entities.FreelancerProfile, error) {
+	var res entities.FreelancerProfile
+	query := "SELECT * FROM freelancer_profiles WHERE freelancere_id = ?"
+	if err := user.DB.Raw(query, freelancerId).Scan(&res).Error; err != nil {
+		return entities.FreelancerProfile{}, err
+	}
+	return res, nil
+}
+
 func (user *UserAdapter) GetCategoryByName(name string) (entities.Category, error) {
 	var res entities.Category
 	query := "SELECT * FROM categories WHERE name = ?"
@@ -428,6 +437,15 @@ func (user *UserAdapter) FreelancerUpdateAddress(req entities.Address) error {
 		return err
 	}
 	return nil
+}
+
+func (user *UserAdapter) GetFreelancerById(freelancerId string) (entities.Freelancer, error) {
+	var res entities.Freelancer
+	query := "SELECT * FROM freelancers WHERE id = ?"
+	if err := user.DB.Raw(query, freelancerId).Scan(&res).Error; err != nil {
+		return entities.Freelancer{}, err
+	}
+	return res, nil
 }
 
 func (user *UserAdapter) FreelancerAddExperience(freelancerId, experience string) error {
