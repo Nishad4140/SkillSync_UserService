@@ -343,6 +343,14 @@ func (user *UserAdapter) FreelancerRemoveEducation(educationId string) error {
 	return nil
 }
 
+func (user *UserAdapter) FreelancerAddTitle(req entities.FreelancerProfile) error {
+	query := "UPDATE freelancer_profiles SET title = $1 WHERE freelancer_id = $2"
+	if err := user.DB.Exec(query, req.Title, req.FreelancerId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (user *UserAdapter) GetCategoryByName(name string) (entities.Category, error) {
 	var res entities.Category
 	query := "SELECT * FROM categories WHERE name = ?"

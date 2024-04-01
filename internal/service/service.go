@@ -699,7 +699,7 @@ func (user *UserService) FreelancerAddEducation(ctx context.Context, req *pb.Edu
 func (user *UserService) FreelancerEditEducation(ctx context.Context, req *pb.EducationResponse) (*emptypb.Empty, error) {
 	Id, err := uuid.Parse(req.Id)
 	if err != nil {
-		return nil, fmt.Errorf("error while parsing the userID")
+		return nil, fmt.Errorf("error while parsing the ID")
 	}
 	StartDate, err := helper.ConvertStringToDate(req.StartDate)
 	if err != nil {
@@ -751,6 +751,24 @@ func (user *UserService) FreelancerRemoveEducation(ctx context.Context, req *pb.
 	}
 	return nil, nil
 }
+
+func (user *UserService) FreelancerAddTitle(ctx context.Context, req *pb.AddTitleRequest) (*emptypb.Empty, error) {
+	userId, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, fmt.Errorf("error while parsing the userID")
+	}
+
+	reqEntity := entities.FreelancerProfile{
+		FreelancerId: userId,
+		Title:        req.Title,
+	}
+	if err := user.adapters.FreelancerAddTitle(reqEntity); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+
 
 func (user *UserService) BlockClient(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
 	if err := user.adapters.ClientBlock(req.Id); err != nil {

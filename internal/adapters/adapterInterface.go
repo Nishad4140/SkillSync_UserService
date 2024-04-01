@@ -45,6 +45,7 @@ type AdapterInterface interface {
 	FreelancerEditEducation(req entities.Education) error
 	FreelancerGetEducation(userId string) ([]entities.Education, error)
 	FreelancerRemoveEducation(educationId string) error
+	FreelancerAddTitle(req entities.FreelancerProfile) error
 
 	// Admin
 	GetAdminByEmail(email string) (entities.Admin, error)
