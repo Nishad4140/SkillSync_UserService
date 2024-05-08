@@ -64,4 +64,6 @@ type AdapterInterface interface {
 	ClientUnBlock(clientId string) error
 	FreelancerBlock(freelancerId string) error
 	FreelancerUnblock(freelancerId string) error
+	UpdateAverageRating(rating float64, freelancerId string) error
+	ReportUser(userId string) error
 }

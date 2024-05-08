@@ -531,6 +531,7 @@ func (user *UserService) GetFreelancerById(ctx context.Context, req *pb.GetUserB
 		Email:      freelancer.Email,
 		Phone:      freelancer.Phone,
 		CategoryId: freelancer.CategoryId,
+		Rating:     float32(freelancer.Rating),
 	}
 	return res, nil
 }
@@ -823,4 +824,18 @@ func (user *UserService) UnBlockFreelancer(ctx context.Context, req *pb.GetUserB
 		return &emptypb.Empty{}, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (user *UserService) UpdateAverageRatingOfFreelancer(ctx context.Context, req *pb.UpdateRatingRequest) (*emptypb.Empty, error) {
+	if err := user.adapters.UpdateAverageRating(float64(req.AvgRating), req.FreelancerId); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (user *UserService) ReportUser(ctx context.Context, req *pb.GetUserById) (*emptypb.Empty, error) {
+	if err := user.adapters.ReportUser(req.Id); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }

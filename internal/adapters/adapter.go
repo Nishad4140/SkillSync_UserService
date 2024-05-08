@@ -22,7 +22,7 @@ func NewUserAdapter(db *gorm.DB) *UserAdapter {
 func (user *UserAdapter) ClientSignup(userData entities.Client) (entities.Client, error) {
 	var res entities.Client
 	id := uuid.New()
-	query := "INSERT INTO clients (id, name, email, phone, password, is_blocked) VALUES ($1, $2, $3, $4, $5, false) RETURNING *"
+	query := "INSERT INTO clients (id, name, email, phone, password, is_blocked, created_at) VALUES ($1, $2, $3, $4, $5, false, time.Now()) RETURNING *"
 	if err := user.DB.Raw(query, id, userData.Name, userData.Email, userData.Phone, userData.Password).Scan(&res).Error; err != nil {
 		return entities.Client{}, fmt.Errorf("error in inserting the values")
 	}
@@ -111,7 +111,7 @@ func (user *UserAdapter) GetClientById(userId string) (entities.Client, error) {
 func (user *UserAdapter) FreelancerSignup(freelancerData entities.Freelancer) (entities.Freelancer, error) {
 	freelancerId := uuid.New()
 	var res entities.Freelancer
-	query := "INSERT INTO freelancers (id, name, email, phone, category_id, password) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *"
+	query := "INSERT INTO freelancers (id, name, email, phone, category_id, password, created_at) VALUES ($1, $2, $3, $4, $5, $6, time.NOW()) RETURNING *"
 	if err := user.DB.Raw(query, freelancerId, freelancerData.Name, freelancerData.Email, freelancerData.Phone, freelancerData.CategoryId, freelancerData.Password).Scan(&res).Error; err != nil {
 		return entities.Freelancer{}, fmt.Errorf("error in inserting values to the freelancer table")
 	}
@@ -492,6 +492,27 @@ func (user *UserAdapter) FreelancerBlock(freelancerId string) error {
 func (user *UserAdapter) FreelancerUnblock(freelancerId string) error {
 	query := "UPDATE freelancers SET is_blocked = false WHERE id = ?"
 	if err := user.DB.Exec(query, freelancerId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) UpdateAverageRating(rating float64, freelancerId string) error {
+	query := `UPDATE freelancers SET rating = $1 WHERE id = $2`
+	if err := user.DB.Exec(query, rating, freelancerId).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (user *UserAdapter) ReportUser(userId string) error {
+	var reportCount int
+	query := `SELECT COALESCE (report_count, 0) FROM users WHERE id = ?`
+	if err := user.DB.Raw(query, userId).Scan(&reportCount).Error; err != nil {
+		return err
+	}
+	updateQuery := `UPDATE clients SET report_count = $1 WHERE id = $2`
+	if err := user.DB.Exec(updateQuery, reportCount+1, userId).Error; err != nil {
 		return err
 	}
 	return nil

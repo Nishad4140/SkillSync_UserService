@@ -7,12 +7,14 @@ import (
 )
 
 type Client struct {
-	ID        uuid.UUID `gorm:"primaryKey;unique;not null"`
-	Name      string
-	Email     string
-	Phone     string
-	Password  string
-	IsBlocked bool
+	ID          uuid.UUID `gorm:"primaryKey;unique;not null"`
+	Name        string
+	Email       string
+	Phone       string
+	Password    string
+	ReportCount int
+	IsBlocked   bool
+	CreatedAt   time.Time
 }
 
 type ClientProfile struct {
@@ -31,8 +33,10 @@ type Freelancer struct {
 	Phone      string
 	CategoryId int32
 	Category   Category `gorm:"foreignKey:CategoryId"`
+	Rating     float64
 	IsBlocked  bool
 	Password   string
+	CreatedAt  time.Time
 }
 
 type FreelancerProfile struct {
