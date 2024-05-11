@@ -32,7 +32,7 @@ func (user *UserUsecase) UploadClientImage(req *pb.ImageRequest, profileId strin
 		log.Println("error while initializing minio", err)
 		return "", err
 	}
-	objectName := "images/" + req.ObjectName
+	objectName := "/" + req.ObjectName
 	contentType := `image/jpeg`
 
 	n, err := minioClient.PutObject(context.Background(), os.Getenv("BUCKET_NAME"), objectName, bytes.NewReader(req.ImageData), int64(len(req.ImageData)), minio.PutObjectOptions{ContentType: contentType})
