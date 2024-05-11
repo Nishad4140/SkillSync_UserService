@@ -112,8 +112,8 @@ func (user *UserAdapter) GetClientById(userId string) (entities.Client, error) {
 func (user *UserAdapter) FreelancerSignup(freelancerData entities.Freelancer) (entities.Freelancer, error) {
 	freelancerId := uuid.New()
 	var res entities.Freelancer
-	query := "INSERT INTO freelancers (id, name, email, phone, category_id, password, created_at) VALUES ($1, $2, $3, $4, $5, $6, time.NOW()) RETURNING *"
-	if err := user.DB.Raw(query, freelancerId, freelancerData.Name, freelancerData.Email, freelancerData.Phone, freelancerData.CategoryId, freelancerData.Password).Scan(&res).Error; err != nil {
+	query := "INSERT INTO freelancers (id, name, email, phone, category_id, password, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"
+	if err := user.DB.Raw(query, freelancerId, freelancerData.Name, freelancerData.Email, freelancerData.Phone, freelancerData.CategoryId, freelancerData.Password, time.Now()).Scan(&res).Error; err != nil {
 		return entities.Freelancer{}, fmt.Errorf("error in inserting values to the freelancer table")
 	}
 	return res, nil
