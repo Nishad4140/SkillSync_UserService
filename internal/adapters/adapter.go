@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Nishad4140/SkillSync_UserService/entities"
 	helperstruct "github.com/Nishad4140/SkillSync_UserService/entities/helperStruct"
@@ -22,8 +23,8 @@ func NewUserAdapter(db *gorm.DB) *UserAdapter {
 func (user *UserAdapter) ClientSignup(userData entities.Client) (entities.Client, error) {
 	var res entities.Client
 	id := uuid.New()
-	query := "INSERT INTO clients (id, name, email, phone, password, is_blocked, created_at) VALUES ($1, $2, $3, $4, $5, false, time.Now()) RETURNING *"
-	if err := user.DB.Raw(query, id, userData.Name, userData.Email, userData.Phone, userData.Password).Scan(&res).Error; err != nil {
+	query := "INSERT INTO clients (id, name, email, phone, password, is_blocked, created_at) VALUES ($1, $2, $3, $4, $5, false, $6) RETURNING *"
+	if err := user.DB.Raw(query, id, userData.Name, userData.Email, userData.Phone, userData.Password, time.Now()).Scan(&res).Error; err != nil {
 		return entities.Client{}, fmt.Errorf("error in inserting the values")
 	}
 	return res, nil
